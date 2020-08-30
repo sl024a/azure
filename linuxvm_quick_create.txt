@@ -1,0 +1,45 @@
+#Create a ResourceGroupName 
+rg_name="RG3"
+loc="eastus"
+vmname="linuxvm01"
+az group create --name $rg_name --location $loc 
+
+#Create a virtual Network and subnet
+#define Variables 
+vnet_name="'$rg_name'_vNet"
+ip_pool="192.168.0.0/16"
+subnet_name="subnet1"
+subnet_pool="192.168.1.0/24"
+publicIP_name="'$vmname'-pubIP"
+az network vnet create --resource-group $rg_name \
+--name RG3_vNet \
+--address-prefix $ip_pool \
+--subnet-name $subnet_name \
+--subnet-prefix $subnet_pool 
+##Create a public IP 
+az network public-ip create --resource-group $rg_name --name "$vmname"-PubIP 
+
+##Crate a network Security Group 
+nsg="NSG$vmname"
+az network nsg  create \
+--resource-group $rg_name \
+--name $nsg 
+##Add rules to allow ssh 
+az network nsg rule create \
+    --resource-group $rg_name \
+    --nsg-name $nsg \
+    --name NetworkSecurityGroupRuleSSH \
+    --protocol tcp \
+    --priority 600 \
+    --destination-port-range 22 \
+    --access allow
+## Add rules to allow port 80
+az network nsg rule create \
+--resource-group $rg_name \
+    --nsg-name $nsg \
+    --name NetworkSecurityGroupRuleWeb \
+    --protocol tcp \
+    --priority 601 \
+    --destination-port-range 80 \
+    --access allow
+ 
