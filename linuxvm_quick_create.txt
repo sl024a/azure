@@ -1,18 +1,25 @@
 #Create a ResourceGroupName 
-rg_name="RG3"
+rg_name="RG4"
 loc="eastus"
-vmname="linuxvm01"
+vmname="linuxvm02"
+vnet_name="$vmname-vNet1"
+ip_pool="192.168.0.0/16"
+subnet_name="subnet1"
+subnet_pool="192.168.1.0/24"
+publicIP_name="$vmname-pubIP"
+nsg="NSG$vmname"
+nic_name="$vmname-Nic1"
+ 
+
+
+
 az group create --name $rg_name --location $loc 
 
 #Create a virtual Network and subnet
 #define Variables 
-vnet_name="vNet-$rg_name"
-ip_pool="192.168.0.0/16"
-subnet_name="subnet1"
-subnet_pool="192.168.1.0/24"
-publicIP_name="'$vmname'-pubIP"
+
 az network vnet create --resource-group $rg_name \
---name RG3_vNet \
+--name $vnet_name \
 --address-prefix $ip_pool \
 --subnet-name $subnet_name \
 --subnet-prefix $subnet_pool 
@@ -21,7 +28,7 @@ pubip_name="$vmname"-PubIP
 az network public-ip create --resource-group $rg_name --name $pubip_name
 
 ##Crate a network Security Group 
-nsg="NSG$vmname"
+
 az network nsg  create \
 --resource-group $rg_name \
 --name $nsg 
@@ -47,7 +54,7 @@ az network nsg rule create \
  az network nsg show --resource-group RG3 --name NSGlinuxvm01
  
  ##Create a Virtual NIC 
- nic_name="Nic1"
+
  az network nic create \
     --resource-group $rg_name \
     --name $nic_name \
