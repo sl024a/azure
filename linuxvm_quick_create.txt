@@ -1,4 +1,3 @@
-#Create a ResourceGroupName 
 rg_name="RG4"
 loc="eastus"
 vmname="linuxvm02"
@@ -9,10 +8,9 @@ subnet_pool="192.168.1.0/24"
 publicIP_name="$vmname-pubIP"
 nsg="NSG$vmname"
 nic_name="$vmname-Nic1"
+myavalivilityset="$vmname-AS"
  
-
-
-
+#Create a ResourceGroupName 
 az group create --name $rg_name --location $loc 
 
 #Create a virtual Network and subnet
@@ -23,15 +21,16 @@ az network vnet create --resource-group $rg_name \
 --address-prefix $ip_pool \
 --subnet-name $subnet_name \
 --subnet-prefix $subnet_pool 
+
 ##Create a public IP 
 pubip_name="$vmname"-PubIP 
 az network public-ip create --resource-group $rg_name --name $pubip_name
 
 ##Crate a network Security Group 
-
 az network nsg  create \
 --resource-group $rg_name \
 --name $nsg 
+
 ##Add rules to allow ssh 
 az network nsg rule create \
     --resource-group $rg_name \
@@ -41,6 +40,7 @@ az network nsg rule create \
     --priority 600 \
     --destination-port-range 22 \
     --access allow
+    
 ## Add rules to allow port 80
 az network nsg rule create \
 --resource-group $rg_name \
@@ -50,11 +50,11 @@ az network nsg rule create \
     --priority 601 \
     --destination-port-range 80 \
     --access allow
+    
  ## Check if the NSG rule are applied by the command below : 
- az network nsg show --resource-group RG3 --name NSGlinuxvm01
+ #az network nsg show --resource-group RG3 --name NSGlinuxvm01
  
  ##Create a Virtual NIC 
-
  az network nic create \
     --resource-group $rg_name \
     --name $nic_name \
@@ -63,8 +63,21 @@ az network nsg rule create \
     --public-ip-address $pubip_name \
     --network-security-group $nsg
  
+ #Create an availability set
+ az vm availability-set create \
+    --resource-group $rg_name \
+    --name $myavalivilityset
  
-
+##Finally Create VM
+az vm create \
+    --resource-group $rg_name \
+    --name $vmname \
+    --location $loc \
+    --availability-set $myavalivilityset \
+    --nics $nic_name \
+    --image UbuntuLTS \
+    --admin-username sl024a \
+    --generate-ssh-keys
  
  
  
